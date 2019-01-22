@@ -8,13 +8,13 @@ def createSeedVector():
 		notes[note] = np.random.choice([-1, 1], size=10000)
 	return notes
 
-def songVector(noteSequence, songVector):
+def songVector(noteSequence, notes, songVector):
 	noteSequence = noteSequence.replace('#', '# ').replace('b', 'b ').split(" ")
 	noteSequence = list(filter(None, noteSequence))
 	n = len(noteSequence)
 
 	# print(noteSequence)
-	
+
 	# encode trigrams into the songVector
 	# wan = rr(w) + r(a) + n
 	for i in range(2, n):
@@ -34,17 +34,83 @@ def songVector(noteSequence, songVector):
 
 	return songVector
 
+def findTheme(noteSequence, notes, songs):
+	''' noteSequence is a string '''
+
+	noteSequence = noteSequence.split(" ")
+	noteSequence = list(filter(None, noteSequence))
+	n = len(noteSequence)
+
+	songQuery = np.zeros(10000)
+
+	# how many notes in sequence
+	if n == 1:
+		songQuery = notes[noteSequence[0]]
+	if n == 2:
+		firstNote = noteSequence[i-2]
+		secondNote = noteSequence[i-1]
+
+		first = np.concatenate([notes[firstNote][2:], notes[firstNote][0:2]])
+		second = np.concatenate([notes[secondNote][1:], notes[secondNote][0:1]])
+
+		songQuery = np.multiply(first, second)
+	
+	# if three notes or longer
+	else:
+		for i in range(2, n):
+			# print(i, "time!")
+			firstNote = noteSequence[i-2]
+			secondNote = noteSequence[i-1]
+			thirdNote = noteSequence[i]
+
+			# print(firstNote, secondNote, thirdNote)
+			first = np.concatenate([notes[firstNote][2:], notes[firstNote][0:2]])
+			second = np.concatenate([notes[secondNote][1:], notes[secondNote][0:1]])
+			third = notes[thirdNote]
+
+			multiplyResult = np.multiply( np.multiply(first, second), third)
+
+			songQuery += multiplyResult
+
+	compareSongs = songs.copy()
+
+	for song in songs:
+		compareSongs[song] = np.dot(songs[song], songQuery)
+
+	# find highest 3 letters
+	songResults = []
+	for i in range(3):
+		song = max(compareSongs, key=compareSongs.get)
+		compareSongs.pop(song)
+		songResults.append(song)
+
+	return songResults
+
 if __name__ == "__main__":
 	notes = createSeedVector()
 
-	song = {}
+	songs = {}
+	print("Loading themes...")
 	with open('data/themesOG.csv') as csvDataFile:
 		csvReader = csv.reader(csvDataFile)
 
 		for count, theme in enumerate(csvReader):
 			if count != 0:
-				if theme[0] in song:
-					song[theme[0]] = songVector(theme[3], song[theme[0]])
+				if theme[0] in songs:
+					songs[theme[0]] = songVector(theme[3], notes, songs[theme[0]])
 				else:
 					newSongVector = np.zeros(10000)
-					song[theme[0]] = songVector(theme[3], newSongVector)
+					songs[theme[0]] = songVector(theme[3], notes, newSongVector)
+			# print(theme)
+
+	# print("----------------------------------------------")
+	print("Done loading themes!")
+	print("----------------------------------------------\n\n\n")
+	keepRolling = True
+	print('Type "exit" to exit')
+	while keepRolling:
+		noteSequence = input("Please enter a note sequence to look up: \n")
+		if noteSequence == "exit":
+			exit()
+		print(findTheme(noteSequence, notes, songs))
+		print("\n")
