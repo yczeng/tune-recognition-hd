@@ -34,8 +34,12 @@ def songVector(noteSequence, notes, songVector):
 
 	return np.where(songVector >= 1, 1, -1)
 
-def findTheme(noteSequence, notes, songs):
+def findTheme(noteSequence, notes, songs, transpose=False):
 	''' noteSequence is a string '''
+
+	if transpose:
+		pass
+		# do something...
 
 	# noteSequence = noteSequence[::-1]
 	noteSequence = noteSequence.split(" ")
@@ -83,11 +87,10 @@ def findTheme(noteSequence, notes, songs):
 
 	# print("MARY LAMB IS", compareSongs["MaryLamb"])
 	# print(compareSongs)
-	# find highest 3 letters
 	songResults = []
 	for i in range(10):
 		song = max(compareSongs, key=compareSongs.get)
-		print(song, compareSongs[song])
+		# print(song, compareSongs[song])
 
 		compareSongs.pop(song)
 		songResults.append(song)
@@ -116,11 +119,29 @@ if __name__ == "__main__":
 	# print("----------------------------------------------")
 	print("Done loading themes!")
 	print("----------------------------------------------\n\n\n")
+	print("Enter X to exit")
+	print("Enter T to enable transpose mode")
+	print("To search, enter note names in caps separated by spaces.")
+	print("e.g. A B C# D Db D")
+	print("\n\n\n----------------------------------------------")
+
 	keepRolling = True
-	print('Type x to exit')
+	transpose = False
+
 	while keepRolling:
+		if transpose:
+			print("Transpose mode: On.")
+		else:
+			print("Transpose mode: Off.")
+
 		noteSequence = input("Please enter a note sequence to look up: \n")
-		if noteSequence == "x":
+		if noteSequence == "X" or noteSequence == "x":
 			exit()
-		print(findTheme(noteSequence, notes, songs))
+		if noteSequence == "T" or noteSequence == "t":
+			transpose = not(transpose)
+		else:
+			themes = findTheme(noteSequence, notes, songs, transpose)
+			for count, theme in enumerate(themes):
+				print(count+1, theme)
+		
 		print("\n")
