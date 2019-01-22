@@ -18,7 +18,7 @@ def songVector(noteSequence, notes, songVector):
 	# encode trigrams into the songVector
 	# wan = rr(w) + r(a) + n
 	for i in range(2, n):
-		# print(i, "time!")
+
 		firstNote = noteSequence[i-2]
 		secondNote = noteSequence[i-1]
 		thirdNote = noteSequence[i]
@@ -32,11 +32,12 @@ def songVector(noteSequence, notes, songVector):
 
 		songVector += multiplyResult
 
-	return songVector
+	return np.where(songVector >= 1, 1, -1)
 
 def findTheme(noteSequence, notes, songs):
 	''' noteSequence is a string '''
 
+	# noteSequence = noteSequence[::-1]
 	noteSequence = noteSequence.split(" ")
 	noteSequence = list(filter(None, noteSequence))
 	n = len(noteSequence)
@@ -57,11 +58,14 @@ def findTheme(noteSequence, notes, songs):
 	
 	# if three notes or longer
 	else:
+		# print("this executed")
 		for i in range(2, n):
 			# print(i, "time!")
 			firstNote = noteSequence[i-2]
 			secondNote = noteSequence[i-1]
 			thirdNote = noteSequence[i]
+
+			# print(firstNote, secondNote, thirdNote)
 
 			# print(firstNote, secondNote, thirdNote)
 			first = np.concatenate([notes[firstNote][2:], notes[firstNote][0:2]])
@@ -77,10 +81,14 @@ def findTheme(noteSequence, notes, songs):
 	for song in songs:
 		compareSongs[song] = np.dot(songs[song], songQuery)
 
+	# print("MARY LAMB IS", compareSongs["MaryLamb"])
+	# print(compareSongs)
 	# find highest 3 letters
 	songResults = []
-	for i in range(3):
+	for i in range(10):
 		song = max(compareSongs, key=compareSongs.get)
+		print(song, compareSongs[song])
+
 		compareSongs.pop(song)
 		songResults.append(song)
 
@@ -96,8 +104,10 @@ if __name__ == "__main__":
 
 		for count, theme in enumerate(csvReader):
 			if count != 0:
+				# print(theme[0])
 				if theme[0] in songs:
-					songs[theme[0]] = songVector(theme[3], notes, songs[theme[0]])
+					newSongVector = np.zeros(10000)
+					songs[theme[0] + " theme" + theme[1]] = songVector(theme[3], notes, newSongVector)
 				else:
 					newSongVector = np.zeros(10000)
 					songs[theme[0]] = songVector(theme[3], notes, newSongVector)
@@ -107,10 +117,10 @@ if __name__ == "__main__":
 	print("Done loading themes!")
 	print("----------------------------------------------\n\n\n")
 	keepRolling = True
-	print('Type "exit" to exit')
+	print('Type x to exit')
 	while keepRolling:
 		noteSequence = input("Please enter a note sequence to look up: \n")
-		if noteSequence == "exit":
+		if noteSequence == "x":
 			exit()
 		print(findTheme(noteSequence, notes, songs))
 		print("\n")
