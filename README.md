@@ -2,4 +2,4 @@
 
 This program uses high dimensional vectors to recognize classical tunes.
 
-Hugo Clarke from [BestClassicalTunes.com](BestClassicalTunes.com) generously shared his database of classical pieces and themes with me, located in the `data` folder, which made this project possible. Thank you Hugo :)
+This project was made possible by the classical pieces and themes database that Hugo Clarke from [BestClassicalTunes.com](BestClassicalTunes.com) generously shared. Thank you Hugo :)
